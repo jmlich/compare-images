@@ -23,6 +23,7 @@ if __name__ == "__main__":
 
     cols = 120
     rows = 90
+    channels = 3
 
     resizedA = cv2.resize( inA, ( cols, rows ) )
     resizedB = cv2.resize( inB, ( cols, rows ) )
@@ -35,8 +36,8 @@ if __name__ == "__main__":
 
     for y in range( rows ):
         for x in range( cols ):
-            for i in range( 3 ):
-                distance = distance + abs( resizedA[ y, x, i ] - resizedB[ y, x, i ] )
+            for i in range( channels ):
+                distance = distance + abs( int( resizedA[ y, x, i ] ) - int( resizedB[ y, x, i ] ) )
 
-    print(distance)
+    print( distance )
 
