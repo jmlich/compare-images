@@ -3,7 +3,7 @@
 inDirA=/var/www/html/fire/dataset-fire-labelme-cropped-Images
 inDirB=/var/www/html/fire/bowfire-dataset/dataset-BowFire/dataset/img_jpg
 
-thresholds=( 100000 200000 500000 1000000 )
+thresholds=( 10000 20000 50000 100000 200000 500000 1000000 )
 
 
 near_log="./near-%d.log"
