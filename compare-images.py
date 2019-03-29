@@ -8,19 +8,6 @@ import sys
 def compute_distance(a, b):
     return np.sum( np.absolute( np.subtract(a, b) ) )
 
-def compute_distance2(a, b):
-    distance = 0
-
-    rows = a.shape[0]
-    cols = a.shape[1]
-    channels = a.shape[2]
-
-    for y in range( rows ):
-        for x in range( cols ):
-            for i in range( channels ):
-                distance = distance + abs( int( a[ y, x, i ] ) - int( b[ y, x, i ] ) )
-    return distance
-
 
 def test_compute_distance():
     red = [ 255, 0, 0 ];
@@ -55,36 +42,60 @@ def test_compute_distance():
     assert(compute_distance(a, b) == 510)
 
 
-if __name__ == "__main__":
+def readlist(fn):
+    lines = [line.strip() for line in open(fn)]
+    features = []
+    features_mini = []
+    avgs = []
 
+    for fn in lines:
+        img = cv2.imread(fn);
+        resized = cv2.resize(img, (DEST_ROWS, DEST_COLS) )
+        features.append(resized);
+
+        resized = cv2.resize(resized, (DEST2_ROWS, DEST2_COLS) )
+        gray = cv2.cvtColor(resized, cv2.COLOR_BGR2GRAY)
+        avgs.append(np.average(gray))
+        features_mini.append(resized);
+    return zip(lines, avgs, features, features_mini)
+
+
+if __name__ == "__main__":
 #    test_compute_distance()
 
-    if (len(sys.argv) != 3) :
-        print( "usage: {0} image1.jpg image2.jpg".format( sys.argv[0] ) )
-        sys.exit(1)
+    DEST_COLS = 120;
+    DEST_ROWS = 90
 
-    inA_filename = sys.argv[1]
-    inB_filename = sys.argv[2]
+    DEST2_COLS = 30;
+    DEST2_ROWS = 15
 
-    # jpg 8-bit 3 kanaly
-
-    inA = cv2.imread(inA_filename)
-    inB = cv2.imread(inB_filename)
-
-    # prevest na [120, 90]
-
-    cols = 120
-    rows = 90
-    channels = 3
-
-    resizedA = cv2.resize( inA, ( cols, rows ) )
-    resizedB = cv2.resize( inB, ( cols, rows ) )
+    list1 = readlist(sys.argv[1])
+    list2 = list(readlist(sys.argv[2]))
 
 
-    # pro kazdy pixel spocitat absolutni hodnotu 
-    # [ 0 ; 3 * 255 ] pro jeden pixel
-    # pro obrazek 120, 90 [0 ; 8 262 000 ]
+    for fn1, avg1, feature1, feature1s in list1:
+        for fn2, avg2, feature2, feature2s  in list2:
 
-    distance = compute_distance(resizedA, resizedB)
-    print(distance)
+            if fn1 == fn2: # skip same filenames
+                print (fn1, fn2, 0, "same filename");
+                continue;
+
+            distance = compute_distance(feature1s, feature2s)
+            if distance > 50000:
+                print (fn1, fn2, distance, "#");
+                continue;
+
+            distance = compute_distance(feature1, feature2)
+            if distance < 32400:
+                print (fn1, fn2, distance, "1");
+            elif distance < 64000:
+                print (fn1, fn2, distance, "2");
+            elif distance < 128000:
+                print (fn1, fn2, distance, "3");
+            elif distance < 256000:
+                print (fn1, fn2, distance, "4");
+            elif distance < 512000:
+                print (fn1, fn2, distance, "5");
+            else:
+                print (fn1, fn2, distance, "%");
 
