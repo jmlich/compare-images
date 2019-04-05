@@ -96,6 +96,14 @@ if __name__ == "__main__":
                 print (fn1, fn2, distance, "4");
             elif distance < 512000:
                 print (fn1, fn2, distance, "5");
+            elif distance < 1024000:
+                print (fn1, fn2, distance, "6");
+            elif distance < 2048000:
+                print (fn1, fn2, distance, "7");
+            elif distance < 4096000:
+                print (fn1, fn2, distance, "8");
+            elif distance < 8192000:
+                print (fn1, fn2, distance, "9");
             else:
                 print (fn1, fn2, distance, "%");
 
