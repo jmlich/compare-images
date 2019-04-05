@@ -19,6 +19,9 @@ if [ -f "$blacklist_file" ]; then
         sed '\#'"$fa"'#d' -i list1.txt
         sed '\#'"$fb"'#d' -i list2.txt
     done < "$blacklist_file"
+else
+    touch "$blacklist_file"
+    chmod 666 "$blacklist_file"
 fi
 
 wc -l "$blacklist_file" list1.txt list2.txt
