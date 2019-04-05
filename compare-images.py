@@ -42,14 +42,24 @@ def test_compute_distance():
     assert(compute_distance(a, b) == 510)
 
 
+def histogram_equalize(img):
+    b, g, r = cv2.split(img)
+    red = cv2.equalizeHist(r)
+    green = cv2.equalizeHist(g)
+    blue = cv2.equalizeHist(b)
+    return cv2.merge((blue, green, red))
+
 def readlist(fn):
     lines = [line.strip() for line in open(fn)]
     features = []
     features_mini = []
     avgs = []
+    aspect_ratios = []
 
     for fn in lines:
         img = cv2.imread(fn);
+        aspect_ratios.append(img.shape[0]/img.shape[1])
+        img = histogram_equalize(img)
         resized = cv2.resize(img, (DEST_ROWS, DEST_COLS) )
         features.append(resized);
 
@@ -57,53 +67,50 @@ def readlist(fn):
         gray = cv2.cvtColor(resized, cv2.COLOR_BGR2GRAY)
         avgs.append(np.average(gray))
         features_mini.append(resized);
-    return zip(lines, avgs, features, features_mini)
+    return zip(lines, avgs, features, features_mini, aspect_ratios)
 
 
 if __name__ == "__main__":
 #    test_compute_distance()
 
+    if len(sys.argv) != 3:
+        print ("usage: {0} list1.txt list2.txt".format(sys.argv[0]))
+        print ("list of images contains filenames on separate lines")
+        sys.exit(1)
+
+
     DEST_COLS = 120;
-    DEST_ROWS = 90
+    DEST_ROWS = 90;
 
     DEST2_COLS = 30;
-    DEST2_ROWS = 15
+    DEST2_ROWS = 15;
 
     list1 = readlist(sys.argv[1])
     list2 = list(readlist(sys.argv[2]))
 
 
-    for fn1, avg1, feature1, feature1s in list1:
-        for fn2, avg2, feature2, feature2s  in list2:
+
+    for fn1, avg1, feature1, feature1s, aspect1 in list1:
+        for fn2, avg2, feature2, feature2s, aspect2 in list2:
 
             if fn1 == fn2: # skip same filenames
-                print (fn1, fn2, 0, "same filename");
+                print (-1, fn1, fn2, "x");
                 continue;
 
-            distance = compute_distance(feature1s, feature2s)
-            if distance > 50000:
-                print (fn1, fn2, distance, "#");
-                continue;
+            aspect_difference_pct = abs(aspect1-aspect2)/aspect1
+            if aspect_difference_pct > 0.1:
+                print(aspect_difference_pct, fn1, fn2, "~")
+                continue
+
+#            distance = compute_distance(feature1s, feature2s)
+#            print (distance, fn1, fn2, "#");
+#            if distance > 50000:
+#                print (distance, fn1, fn2, "#");
+#                continue;
 
             distance = compute_distance(feature1, feature2)
-            if distance < 32400:
-                print (fn1, fn2, distance, "1");
-            elif distance < 64000:
-                print (fn1, fn2, distance, "2");
-            elif distance < 128000:
-                print (fn1, fn2, distance, "3");
-            elif distance < 256000:
-                print (fn1, fn2, distance, "4");
-            elif distance < 512000:
-                print (fn1, fn2, distance, "5");
-            elif distance < 1024000:
-                print (fn1, fn2, distance, "6");
-            elif distance < 2048000:
-                print (fn1, fn2, distance, "7");
-            elif distance < 4096000:
-                print (fn1, fn2, distance, "8");
-            elif distance < 8192000:
-                print (fn1, fn2, distance, "9");
-            else:
-                print (fn1, fn2, distance, "%");
-
+            print (distance, fn1, fn2, "+");
+#            if distance < 4096000:
+#                print (distance, fn1, fn2, "+");
+#            else:
+#                print (distnace, fn1, fn2, "%");

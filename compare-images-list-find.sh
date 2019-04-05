@@ -1,7 +1,8 @@
 #!/bin/bash
 
 inDirA=/var/www/html/fire/FiSmo/FiSmo-Images/Flickr-Fire/Flickr-Fire_flame
-inDirB=/home/jmlich/workspace/fire/labelme/LabelMeAnnotationTool/Images/flickr-fire
+#inDirB=/home/jmlich/workspace/fire/labelme/LabelMeAnnotationTool/Images/flickr-fire
+inDirB=/var/www/html/fire/dataset-fire-labelme-cropped-Images/flickr-fire
 
 #find "$inDirA" -type f |head -n 10 > list1.txt
 find "$inDirA" -type f  > list1.txt
