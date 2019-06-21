@@ -53,9 +53,9 @@ def histogram_equalize2(img):
     return cv2.merge((blue, green, red))
 
 def histogram_equalize(img):
-    img_to_yuv = cv2.cvtColor(img,cv2.COLOR_BGR2YUV)
-    img_to_yuv[:,:,0] = cv2.equalizeHist(img_to_yuv[:,:,0])
-    return cv2.cvtColor(img_to_yuv, cv2.COLOR_YUV2BGR)
+    img_to_lab = cv2.cvtColor(img,cv2.COLOR_BGR2LAB)
+    img_to_lab[:,:,0] = cv2.equalizeHist(img_to_lab[:,:,0])
+    return cv2.cvtColor(img_to_lab, cv2.COLOR_LAB2BGR)
 
 def readlist(fn):
     lines = [line.strip() for line in open(fn)]
@@ -72,12 +72,13 @@ def readlist(fn):
 
         img = cv2.filter2D(img,-1,blur_kernel)
 #        img = histogram_equalize2(img)
-        resized = cv2.resize(img, (DEST_ROWS, DEST_COLS), 0, 0, 0, cv2.INTER_LANCZOS4)
-#        resized = cv2.resize(img, (DEST_ROWS, DEST_COLS))
+        img = histogram_equalize(img)
+#        resized = cv2.resize(img, (DEST_ROWS, DEST_COLS), 0, 0, 0, cv2.INTER_LANCZOS4)
+        resized = cv2.resize(img, (DEST_ROWS, DEST_COLS))
         features.append(resized);
 
-#        resized = cv2.resize(resized, (DEST2_ROWS, DEST2_COLS) )
-        resized = cv2.resize(img, (DEST2_ROWS, DEST2_COLS), 0, 0, 0, cv2.INTER_LANCZOS4)
+        resized = cv2.resize(resized, (DEST2_ROWS, DEST2_COLS) )
+#        resized = cv2.resize(img, (DEST2_ROWS, DEST2_COLS), 0, 0, 0, cv2.INTER_LANCZOS4)
         gray = cv2.cvtColor(resized, cv2.COLOR_BGR2GRAY)
         avgs.append(np.average(gray))
         features_mini.append(resized);
@@ -116,15 +117,7 @@ if __name__ == "__main__":
                 print(aspect_difference_pct, fn1, fn2, "~")
                 continue
 
-#            distance = compute_distance(feature1s, feature2s)
-#            print (distance, fn1, fn2, "#");
-#            if distance > 50000:
-#                print (distance, fn1, fn2, "#");
-#                continue;
-
+            distance_small = compute_distance(feature1s, feature2s)
             distance = compute_distance(feature1, feature2)
-            print (distance, fn1, fn2, "+");
-#            if distance < 4096000:
-#                print (distance, fn1, fn2, "+");
-#            else:
-#                print (distnace, fn1, fn2, "%");
+            distance_sum = (distance + 120 * distance_small) / 2
+            print (distance_sum, fn1, fn2, distance);
